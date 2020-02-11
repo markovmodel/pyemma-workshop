@@ -2,8 +2,16 @@
 ## Installation
 We strongly recommend to install the latest `pyemma` release from the anaconda Python distribution.
 ### step 1: Miniconda
-If you do not have miniconda or anaconda, please follow the instructions here:
+#### everyone
+If you do not have miniconda or anaconda, please follow the instructions here for python 3.7:
 https://conda.io/miniconda.html
+
+#### windows only
+We recently experienced some installation problems with miniconda on windows and thus recommend anaconda for windows users.
+- Get Anaconda from https://www.anaconda.com/distribution/#download-section
+- Run the .exe downloaded file (link above)
+- launch the Anaconda prompt
+- update anaconda: `conda update -n base -c defaults conda`
 
 ### step 2: pyemma
 Installation of all required software packages works by simply executing:
@@ -12,7 +20,7 @@ Installation of all required software packages works by simply executing:
 conda install -c conda-forge pyemma_tutorials
 ```
 
-Please note that if you are already using conda, you might want to create a specific environment for the workshop. This is optional.
+Please note that especially if you are already using conda, you might want to create a specific environment for the workshop. This is optional.
 
 ### step 3: activate some helpers
 In order to activate some features of the notebooks that we will be using, please also run
