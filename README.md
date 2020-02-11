@@ -5,6 +5,7 @@ We strongly recommend to install the latest `pyemma` release from the anaconda P
 #### everyone
 If you do not have miniconda or anaconda, please follow the instructions here for python 3.7:
 https://conda.io/miniconda.html
+In most cases for linux or mac users, a miniconda installation will suffice.
 
 #### windows only
 We recently experienced some installation problems with miniconda on windows and thus recommend anaconda for windows users.
