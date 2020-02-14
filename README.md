@@ -61,3 +61,13 @@ jupyter notebook
 ```
 
 Your browser should pop up pointing to a list of notebooks. If it's the wrong browser, add for example `--browser=firefox`.
+
+### getting updates
+Once you have a local clone of this repository, you can easily obtain updates with `git pull`. 
+We'll let you know once we have published anything new.
+If you work directly in the notebooks that we provide, you might have to use the sequence (`git pull` will raise an error):
+```bash
+git stash
+git pull
+git stash pop
+```
