@@ -9,10 +9,11 @@ In most cases for linux or mac users, a miniconda installation will suffice.
 
 #### windows only
 We recently experienced some installation problems with miniconda on windows and thus recommend anaconda for windows users.
-- Get Anaconda from https://www.anaconda.com/distribution/#download-section
+- Get Anaconda (python 3.7 version) from https://www.anaconda.com/distribution/#download-section
 - Run the .exe downloaded file (link above)
 - launch the Anaconda prompt
 - update anaconda: `conda update -n base -c defaults conda`
+- install git: `conda install -c conda-forge git`
 
 ### step 2: pyemma
 Installation of all required software packages works by simply executing:
