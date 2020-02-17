@@ -37,7 +37,7 @@ jupyter-nbextension enable nglview --py --sys-prefix
 Please clone (download) this repository to get local access to the worksheets.
 
 ```bash
-git clone https://github.com/markovmodel/pyemma_tutorials.git
+git clone https://github.com/markovmodel/pyemma-workshop.git
 ```
 Please remember *where* on your local hard disk you have written it!
 
