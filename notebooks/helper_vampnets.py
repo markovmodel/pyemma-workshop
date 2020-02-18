@@ -187,44 +187,6 @@ def loss_VAMP2(y_true, y_pred):
 
     return - tf.square(vamp_score)
 
-
-def loss_VAMP_sym(y_true, y_pred):
-    '''
-    Calculates the gradient of the VAMP-1 score calculated with respect
-    to the network lobes. Using the shrinkage algorithm to guarantee that 
-    the auto-covariance matrices are really positive definite and that their
-    inverse square-root exists. Can be used as a loss function for a keras
-    model. The two trajectories are averaged when building the correlation
-    matrices:
-
-    C00' = C11' = (C00+C11)/2
-    C01 = C10 = (C01 + C10)/2
-
-    Parameters
-    ----------
-    y_true: tensorflow tensor.
-        parameter not needed for the calculation, added to comply with Keras
-        rules for loss fuctions format.
-
-    y_pred: tensorflow tensor with shape [batch_size, 2 * output_size]
-        output of the two lobes of the network
-
-    Returns
-    -------
-    loss_score: tensorflow tensor with shape [batch_size, 2 * output_size].
-        gradient of the VAMP-1 score
-    '''
-
-    x, y, batch_size = _prep_data(y_pred)
-
-    cov_00_ir, cov_01  = _build_vamp_matrices_rev(x, y, batch_size)
-
-    vamp_matrix = tf.matmul(cov_00_ir, tf.matmul(cov_01, cov_00_ir))
-
-    vamp_score = tf.reduce_sum(tf.linalg.svd(vamp_matrix, compute_uv = False))
-
-    return - tf.square(vamp_score)
-
 def _build_vamp_matrices(x, y, b):
     '''Utility function that returns the matrices used to compute the VAMP
     scores and their gradients for non-reversible problems.
@@ -261,52 +223,6 @@ def _build_vamp_matrices(x, y, b):
     cov_11_inv_root = _inv(cov_11, ret_sqrt=True)
 
     return cov_00_inv_root, cov_11_inv_root, cov_01
-
-
-def _build_vamp_matrices_rev(x, y, b):
-    '''Utility function that returns the matrices used to compute the VAMP
-    scores and their gradients for reversible problems. The matrices are
-    transformed into symmetrical matrices by calculating the covariances
-    using the mean of the auto- and cross-covariances, so that:
-        cross_cov = 1/2*(cov_01 + cov_10)
-    and:
-        auto_cov = 1/2*(cov_00 + cov_11)
-
-
-    Parameters
-    ----------
-    x: tensorflow tensor with shape [output_size, b]
-        output of the left lobe of the network
-
-    y: tensorflow tensor with shape [output_size, b]
-        output of the right lobe of the network
-
-    b: tensorflow float32
-        batch size of the data
-
-    Returns
-    -------
-    auto_cov_inv_root: numpy array with shape [output_size, output_size]
-        square root of the inverse of the mean over the auto-covariance
-        matrices of x and y
-
-    cross_cov: numpy array with shape [output_size, output_size]
-        mean of the cross-covariance matrices of x and y
-    '''
-
-    # Calculate the cross-covariances
-    cov_01 = 1/(b-1) * tf.matmul(x, y, transpose_a=True)
-    cov_10 = 1/(b-1) * tf.matmul(y, x, transpose_a=True)
-    cross_cov = 1/2 * (cov_01 + cov_10) 
-    # Calculate the auto-covariances
-    cov_00 = 1/(b-1) * tf.matmul(x, x, transpose_a=True)
-    cov_11 = 1/(b-1) * tf.matmul(y, y, transpose_a=True) 
-    auto_cov = 1/2 * (cov_00 + cov_11) 
-
-    # Calculate the inverse root of the auto-covariance
-    auto_cov_inv_root = _inv(auto_cov, ret_sqrt=True)
-
-    return auto_cov_inv_root, cross_cov
 
 def get_its(data, lags, plot = False, calculate_K = True, multiple_runs = False):
     ''' Implied timescales from a trajectory estimated at a series of lag times.
@@ -396,7 +312,7 @@ def plot_its(its, lag, ylog=False, multiple_runs = False):
     func(lag,lag, 'k')
     plt.fill_between(lag, lag, 0.99, alpha=0.2, color='k');
     
-def estimate_koopman_op(trajs, tau, both_corr_mat = False, force_symmetric = False, epsilon = 1e-5):
+def estimate_koopman_op(trajs, tau, epsilon = 1e-5):
     '''Estimates the koopman operator for a given trajectory at the lag time
         specified. The formula for the estimation is:
             K = C00 ^ -1/2 @ C01 @ C11 ^ -1/2
@@ -433,83 +349,20 @@ def estimate_koopman_op(trajs, tau, both_corr_mat = False, force_symmetric = Fal
     c_0 = traj.T @ traj
     c_tau = traj.T @ traj_lag
     c_1 = traj_lag.T @ traj_lag
-
-    if force_symmetric:
-        c_0 += c_1
-        c_1 += c_0
-        c_tau += traj_lag.T @ traj
-
-    if both_corr_mat:
-        eigv0_all, eigvec0_all = np.linalg.eig(c_0)
-        include0 = eigv0_all > epsilon
-        eigv0_root = np.sqrt(eigv0[include0])
-        eigvec0 = eigvec0[:,include0]
-        c0_inv = eigvec0 @ np.diag(1/eigv0)
-        c0_inv_root = eigvec0 @ np.diag(1/eigv0_root) @ eigvec0.T
-
-        eigv1, eigvec1 = np.linalg.eig(c_1)
-        include1 = eigv1 > epsilon
-        eigv1_root = np.sqrt(eigv1[include1])
-        eigvec1 = eigvec1[:,include1]
-        c1_inv_root = eigvec1 @ np.diag(1/eigv1_root) @ eigvec1.T
-
-        koopman_op = c0_inv_root @ c_tau @ c1_inv_root
-
-    else:
-        eigv_all, eigvec_all = np.linalg.eig(c_0)
-        include = eigv_all > epsilon
-        eigv = eigv_all[include]
-        eigvec = eigvec_all[:,include]
-        c0_inv = eigvec @ np.diag(1/eigv) @ np.transpose(eigvec)
-
-        koopman_op = c0_inv @ c_tau
-        eigv_all, eigvec_all = np.linalg.eig(c_0)
-        include = eigv_all > epsilon
-        eigv = eigv_all[include]
-        eigvec = eigvec_all[:,include]
-        c0_inv = eigvec @ np.diag(1/eigv) @ np.transpose(eigvec)
-
-        koopman_op = c0_inv @ c_tau
-
-    return koopman_op
-
-def loss_VAMP_sym(y_true, y_pred):
-    '''
-    Calculates the gradient of the VAMP-1 score calculated with respect
-    to the network lobes. Using the shrinkage algorithm to guarantee that 
-    the auto-covariance matrices are really positive definite and that their
-    inverse square-root exists. Can be used as a loss function for a keras
-    model. The two trajectories are averaged when building the correlation
-    matrices:
-
-    C00' = C11' = (C00+C11)/2
-    C01 = C10 = (C01 + C10)/2
-
-    Parameters
-    ----------
-    y_true: tensorflow tensor.
-        parameter not needed for the calculation, added to comply with Keras
-        rules for loss fuctions format.
-
-    y_pred: tensorflow tensor with shape [batch_size, 2 * output_size]
-        output of the two lobes of the network
-
-    Returns
-    -------
-    loss_score: tensorflow tensor with shape [batch_size, 2 * output_size].
-        gradient of the VAMP-1 score
-    '''
-
-    # Remove the mean from the data
-    x, y, batch_size = _prep_data(y_pred)
-
-    # Calculate the inverse root of the auto-covariance matrix, and the 
-    # cross-covariance matrix
-    cov_00_ir, cov_01  = _build_vamp_matrices_rev(x, y, batch_size)
-
-    vamp_matrix = tf.matmul(cov_00_ir, tf.matmul(cov_01, cov_00_ir))
-
-    vamp_score = tf.reduce_sum(tf.linalg.svd(vamp_matrix, compute_uv = False))
-
-    return - tf.square(vamp_score)
     
+    eigv_all, eigvec_all = np.linalg.eig(c_0)
+    include = eigv_all > epsilon
+    eigv = eigv_all[include]
+    eigvec = eigvec_all[:,include]
+    c0_inv = eigvec @ np.diag(1/eigv) @ np.transpose(eigvec)
+
+    koopman_op = c0_inv @ c_tau
+    eigv_all, eigvec_all = np.linalg.eig(c_0)
+    include = eigv_all > epsilon
+    eigv = eigv_all[include]
+    eigvec = eigvec_all[:,include]
+    c0_inv = eigvec @ np.diag(1/eigv) @ np.transpose(eigvec)
+
+    koopman_op = c0_inv @ c_tau
+
+    return koopman_op    
