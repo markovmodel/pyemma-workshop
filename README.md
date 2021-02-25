@@ -28,7 +28,7 @@ For Windows users it makes sense to also install GIT if it is not already availa
 Installation of all required software packages works by simply executing:
 
 ```bash
-conda install -c conda-forge pyemma_tutorials
+conda install pyemma_tutorials
 ```
 
 ### step 3: activate some helpers
