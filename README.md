@@ -11,7 +11,6 @@ We recommend to create a separate environment for the workshop, especially if yo
 # these steps are optional but recommended
 conda create -n workshop
 conda activate workshop
-conda install python=3.8
 
 # this is not optional
 conda config --env --add channels conda-forge
@@ -28,7 +27,7 @@ For Windows users it makes sense to also install GIT if it is not already availa
 Installation of all required software packages works by simply executing:
 
 ```bash
-conda install pyemma_tutorials
+conda install python=3.8 pyemma_tutorials
 ```
 
 ### step 3: activate some helpers
