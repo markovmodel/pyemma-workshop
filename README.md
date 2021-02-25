@@ -1,28 +1,35 @@
 # pyemma-workshop
+
 ## Installation
-We strongly recommend to install the latest `pyemma` release from the anaconda Python distribution.
+We strongly recommend to install the latest `pyemma` and `deeptime` release from the anaconda Python distribution.
+
 ### step 1: Miniconda
-#### everyone
-If you do not have miniconda or anaconda, please follow the instructions here for python 3.7:
-https://conda.io/miniconda.html
-In most cases for linux or mac users, a miniconda installation will suffice.
+If you do not have miniconda or anaconda, please follow the instructions here for Python 3.8: https://conda.io/miniconda.html
 
-#### windows only
-We recently experienced some installation problems with miniconda on windows and thus recommend anaconda for windows users.
-- Get Anaconda (python 3.7 version) from https://www.anaconda.com/distribution/#download-section
-- Run the .exe downloaded file (link above)
-- launch the Anaconda prompt
-- update anaconda: `conda update -n base -c defaults conda`
-- install git: `conda install -c conda-forge git`
+We recommend to create a separate environment for the workshop, especially if you already have a anaconda/miniconda installation:
+```
+# these steps are optional but recommended
+conda create -n workshop
+conda activate workshop
+conda install python=3.8
 
-### step 2: pyemma
+# this is not optional
+conda config --env --add channels conda-forge
+```
+
+---
+**NOTE**
+
+For Windows users it makes sense to also install GIT if it is not already available on the system: ``conda install git``
+
+---
+
+### step 2: pyemma and deeptime
 Installation of all required software packages works by simply executing:
 
 ```bash
 conda install -c conda-forge pyemma_tutorials
 ```
-
-Please note that especially if you are already using conda, you might want to create a specific environment for the workshop. This is optional.
 
 ### step 3: activate some helpers
 In order to activate some features of the notebooks that we will be using, please also run
@@ -31,6 +38,15 @@ jupyter nbextension enable toc2/main
 jupyter nbextension enable exercise2/main
 jupyter-nbextension enable nglview --py --sys-prefix
 ```
+
+## Sanity check
+
+You can check whether you installed the correct versions by calling
+```
+conda list
+```
+
+PyEMMA should show up with version `2.5.8` and deeptime with version `0.2.5`.
 
 ## Usage
 ### only on the first day
@@ -46,7 +62,7 @@ Please remember *where* on your local hard disk you have written it!
 #### activate environment (optional) 
 Skip if you don't know what a conda environment is. Only if conda environment is used; name might differ.
 ``` bash
-conda activate pyemma_tutorials
+conda activate workshop
 ```
 
 #### navigate to the right folder
@@ -61,7 +77,7 @@ This command will start the notebook server:
 jupyter notebook
 ```
 
-Your browser should pop up pointing to a list of notebooks. If it's the wrong browser, add for example `--browser=firefox`.
+Your browser should pop up pointing to a list of notebooks. If it's the wrong browser, add for example `--browser=firefox` or copy and paste the URL into the browser of your choice.
 
 ### getting updates
 Once you have a local clone of this repository, you can easily obtain updates with `git pull`. 
