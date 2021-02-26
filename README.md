@@ -45,7 +45,7 @@ You can check whether you installed the correct versions by calling
 conda list
 ```
 
-PyEMMA should show up with version `2.5.8` and deeptime with version `0.2.5`.
+PyEMMA should show up with version `2.5.9` and deeptime with version `0.2.6`.
 
 ## Usage
 ### only on the first day
