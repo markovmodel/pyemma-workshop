@@ -49,7 +49,7 @@ def implied_timescales_msm(dtrajs, lagtimes, nits=None, bayesian: bool = True, n
 
 
 def _worker_its_hmm(args):
-    with threadpool_limits(limits=1, user_api="blas"):
+    with threadpool_limits(limits=1):
         i, dtrajs, lag, n_hidden_states, nits, bayesian = args
 
         its = None
