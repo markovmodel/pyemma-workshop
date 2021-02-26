@@ -3,13 +3,13 @@ import deeptime as _dt
 
 
 def _worker_its_msm(args):
-    i, dtrajs, lag, nits, bayesian = args
+    i, dtrajs, lag, nits, bayesian, n_samples = args
     count_mode = 'effective' if bayesian else 'sliding'
     its, its_stats = None, None
 
     counts = _dt.markov.TransitionCountEstimator(lag, count_mode).fit(dtrajs, n_jobs=1).fetch_model().submodel_largest()
     if bayesian:
-        bmsm = _dt.markov.msm.BayesianMSM(n_samples=50).fit(counts).fetch_model()
+        bmsm = _dt.markov.msm.BayesianMSM(n_samples=n_samples).fit(counts).fetch_model()
         its = bmsm.prior.timescales(k=nits)
         its_stats = bmsm.evaluate_samples('timescales', k=nits).T
     else:
@@ -18,7 +18,7 @@ def _worker_its_msm(args):
     return i, its, its_stats
 
 
-def implied_timescales_msm(dtrajs, lagtimes, nits=None, bayesian: bool = True, n_jobs=None):
+def implied_timescales_msm(dtrajs, lagtimes, nits=None, bayesian: bool = True, n_jobs=None, n_samples=50):
     from deeptime.util.parallel import joining, handle_n_jobs
     from tqdm.autonotebook import tqdm
 
@@ -27,7 +27,7 @@ def implied_timescales_msm(dtrajs, lagtimes, nits=None, bayesian: bool = True, n
     its = [None for _ in range(len(lagtimes))]
     its_stats = [None for _ in range(len(lagtimes))]
 
-    args = [(i, dtrajs, lagtimes[i], nits, bayesian) for i in range(len(lagtimes))]
+    args = [(i, dtrajs, lagtimes[i], nits, bayesian, n_samples) for i in range(len(lagtimes))]
 
     if n_jobs > 1:
         with joining(_mp.get_context("spawn").Pool(processes=n_jobs)) as pool:
@@ -48,14 +48,14 @@ def implied_timescales_msm(dtrajs, lagtimes, nits=None, bayesian: bool = True, n
 
 
 def _worker_its_hmm(args):
-    i, dtrajs, lag, n_hidden_states, nits, bayesian = args
+    i, dtrajs, lag, n_hidden_states, nits, bayesian, n_samples = args
 
     its = None
     its_stats = None
 
     if bayesian:
         bhmm_estimator = _dt.markov.hmm.BayesianHMM.default(dtrajs, n_hidden_states, lag)
-        bhmm_estimator.n_samples = 50
+        bhmm_estimator.n_samples = n_samples
         bhmm = bhmm_estimator.fit(dtrajs).fetch_model()
         its = bhmm.prior.transition_model.timescales(k=nits)
         its_stats = bhmm.evaluate_samples('transition_model/timescales', k=nits).T
@@ -67,7 +67,7 @@ def _worker_its_hmm(args):
     return i, its, its_stats
 
 
-def implied_timescales_hmm(dtrajs, lagtimes, n_hidden_states, nits=None, bayesian: bool = True, n_jobs=None):
+def implied_timescales_hmm(dtrajs, lagtimes, n_hidden_states, nits=None, bayesian: bool = True, n_jobs=None, n_samples=50):
     from deeptime.util.parallel import joining, handle_n_jobs
     from tqdm.autonotebook import tqdm
 
@@ -75,7 +75,7 @@ def implied_timescales_hmm(dtrajs, lagtimes, n_hidden_states, nits=None, bayesia
     its = [None for _ in range(len(lagtimes))]
     its_stats = [None for _ in range(len(lagtimes))]
 
-    args = [(i, dtrajs, lagtimes[i], n_hidden_states, nits, bayesian) for i in range(len(lagtimes))]
+    args = [(i, dtrajs, lagtimes[i], n_hidden_states, nits, bayesian, n_samples) for i in range(len(lagtimes))]
 
     if n_jobs > 1:
         with joining(_mp.get_context("spawn").Pool(processes=n_jobs)) as pool:
