@@ -41,6 +41,7 @@ This should print the latest version of deeptime.
 ### step 3: activate some helpers
 In order to activate some features of the notebooks that we will be using, please also run
 ```bash
+jupyter contrib nbextension install --sys-prefix
 jupyter nbextension enable toc2/main
 jupyter nbextension enable exercise2/main
 jupyter nbextension enable nglview --py --sys-prefix
