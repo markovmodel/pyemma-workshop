@@ -27,7 +27,7 @@ For Windows users it makes sense to also install GIT if it is not already availa
 Installation of all required software packages works by simply executing:
 
 ```bash
-conda install python=3.8 pyemma_tutorials
+conda install python=3.9 pyemma_tutorials networkx
 ```
 
 ### step 3: activate some helpers
