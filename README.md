@@ -30,6 +30,14 @@ Installation of all required software packages works by simply executing:
 conda install python=3.9 pyemma_tutorials networkx
 ```
 
+You can test your deeptime installation but running the following in your environment:
+
+```bash
+python -c "import deeptime; print(deeptime.__version__)" 
+```
+
+This should print the latest version of deeptime.
+
 ### step 3: activate some helpers
 In order to activate some features of the notebooks that we will be using, please also run
 ```bash
@@ -45,7 +53,7 @@ You can check whether you installed the correct versions by calling
 conda list
 ```
 
-PyEMMA should show up with version `2.5.9` and deeptime with version `0.2.6`.
+PyEMMA should show up with version `2.5.11` and deeptime with version `0.4.1`.
 
 ## Usage
 ### only on the first day
