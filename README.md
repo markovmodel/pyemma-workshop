@@ -27,7 +27,7 @@ For Windows users it makes sense to also install GIT if it is not already availa
 Installation of all required software packages works by simply executing:
 
 ```bash
-conda install python=3.9 pyemma_tutorials networkx
+conda install python=3.9 pyemma_tutorials networkx black
 ```
 
 You can test your deeptime installation but running the following in your environment:
@@ -43,7 +43,12 @@ In order to activate some features of the notebooks that we will be using, pleas
 ```bash
 jupyter nbextension enable toc2/main
 jupyter nbextension enable exercise2/main
-jupyter-nbextension enable nglview --py --sys-prefix
+jupyter nbextension enable nglview --py --sys-prefix
+```
+
+In case you are already a conda and jupyter notebook user with various environments, you can install your environment Python kernel via
+```bash
+python -m ipykernel install --user --name workshop
 ```
 
 ## Sanity check
